@@ -1,0 +1,54 @@
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>录音示例</title>
+</head>
+
+<body>
+  <h1>录音示例</h1>
+  <button id="startBtn">开始录音</button>
+  <button id="stopBtn" disabled="">停止录音</button>
+  <audio id="audioPlayer" controls=""></audio>
+
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    document.getElementById("startBtn").onclick = async function () {
+      alert(navigator.mediaDevices)
+      // 请求用户权限使用麦克风
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.start();
+      // alert(1)
+      document.getElementById("stopBtn").disabled = false;
+      document.getElementById("startBtn").disabled = true;
+
+      mediaRecorder.ondataavailable = function (event) {
+        alert(1);
+        audioChunks.push(event.data);
+      };
+
+      mediaRecorder.onstop = function () {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audioPlayer = document.getElementById("audioPlayer");
+        audioPlayer.src = audioUrl;
+        audioChunks = [];
+      };
+    };
+
+    document.getElementById("stopBtn").onclick = function () {
+      mediaRecorder.stop();
+      document.getElementById("stopBtn").disabled = true;
+      document.getElementById("startBtn").disabled = false;
+    };
+  </script>
+
+
+</body>
+
+</html>
